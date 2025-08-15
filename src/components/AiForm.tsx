@@ -15,11 +15,9 @@ interface FormData {
   Feedback_Score: string;
 }
 
-interface AIFormProps {
-  onSubmit?: (data: FormData) => Promise<string>;
-}
 
-const AIForm = ({ onSubmit }: AIFormProps) => {
+
+const AIForm = () => {
 //   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     Quiz_Attempts: '',
@@ -53,7 +51,7 @@ const AIForm = ({ onSubmit }: AIFormProps) => {
 
     try {
       // Mock API call - replace with actual endpoint
-      const mockResponse = await mockAICall(formData);
+    //   const mockResponse = await mockAICall(formData);
       
       // Navigate to prediction page with data
     //   navigate('/prediction', {
@@ -70,71 +68,71 @@ const AIForm = ({ onSubmit }: AIFormProps) => {
     }
   };
 
-  // Mock AI response function
-  const mockAICall = async (data: FormData): Promise<string> => {
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
+//   // Mock AI response function
+//   const mockAICall = async (data: FormData): Promise<string> => {
+//     await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
     
-    const score = calculatePredictedScore(data);
-    return `Based on your academic performance metrics, our AI analysis predicts:
+//     const score = calculatePredictedScore(data);
+//     return `Based on your academic performance metrics, our AI analysis predicts:
 
-📊 **Predicted Final Grade: ${score}%**
+// 📊 **Predicted Final Grade: ${score}%**
 
-🎯 **Performance Insights:**
-• Your quiz performance (${data.Quiz_Scores}%) shows ${parseInt(data.Quiz_Scores) >= 80 ? 'strong' : 'room for improvement in'} understanding of core concepts
-• Forum participation level (${data.Forum_Participation} posts) indicates ${parseInt(data.Forum_Participation) >= 10 ? 'excellent' : 'moderate'} engagement with course community
-• Assignment completion rate of ${data.Assignment_Completion_Rate}% demonstrates ${parseInt(data.Assignment_Completion_Rate) >= 90 ? 'excellent' : 'good'} time management
+// 🎯 **Performance Insights:**
+// • Your quiz performance (${data.Quiz_Scores}%) shows ${parseInt(data.Quiz_Scores) >= 80 ? 'strong' : 'room for improvement in'} understanding of core concepts
+// • Forum participation level (${data.Forum_Participation} posts) indicates ${parseInt(data.Forum_Participation) >= 10 ? 'excellent' : 'moderate'} engagement with course community
+// • Assignment completion rate of ${data.Assignment_Completion_Rate}% demonstrates ${parseInt(data.Assignment_Completion_Rate) >= 90 ? 'excellent' : 'good'} time management
 
-💡 **Recommendations:**
-${generateRecommendations(data)}
+// 💡 **Recommendations:**
+// ${generateRecommendations(data)}
 
-Keep up the great work! Your dedication to learning is evident in these metrics.`;
-  };
+// Keep up the great work! Your dedication to learning is evident in these metrics.`;
+//   };
 
-  const calculatePredictedScore = (data: FormData): number => {
-    const weights = {
-      Quiz_Scores: 0.25,
-      Assignment_Completion_Rate: 0.2,
-      Final_Exam_Score: 0.3,
-      Engagement_Level: 0.15,
-      Feedback_Score: 0.1
-    };
+//   const calculatePredictedScore = (data: FormData): number => {
+//     const weights = {
+//       Quiz_Scores: 0.25,
+//       Assignment_Completion_Rate: 0.2,
+//       Final_Exam_Score: 0.3,
+//       Engagement_Level: 0.15,
+//       Feedback_Score: 0.1
+//     };
 
-    let weightedSum = 0;
-    weightedSum += parseFloat(data.Quiz_Scores || '0') * weights.Quiz_Scores;
-    weightedSum += parseFloat(data.Assignment_Completion_Rate || '0') * weights.Assignment_Completion_Rate;
-    weightedSum += parseFloat(data.Final_Exam_Score || '0') * weights.Final_Exam_Score;
-    weightedSum += parseFloat(data.Engagement_Level || '0') * weights.Engagement_Level;
-    weightedSum += (parseFloat(data.Feedback_Score || '0') * 20) * weights.Feedback_Score; // Convert 5-scale to 100-scale
+//     let weightedSum = 0;
+//     weightedSum += parseFloat(data.Quiz_Scores || '0') * weights.Quiz_Scores;
+//     weightedSum += parseFloat(data.Assignment_Completion_Rate || '0') * weights.Assignment_Completion_Rate;
+//     weightedSum += parseFloat(data.Final_Exam_Score || '0') * weights.Final_Exam_Score;
+//     weightedSum += parseFloat(data.Engagement_Level || '0') * weights.Engagement_Level;
+//     weightedSum += (parseFloat(data.Feedback_Score || '0') * 20) * weights.Feedback_Score; // Convert 5-scale to 100-scale
 
-    return Math.round(weightedSum);
-  };
+//     return Math.round(weightedSum);
+//   };
 
-  const generateRecommendations = (data: FormData): string => {
-    const recommendations = [];
+//   const generateRecommendations = (data: FormData): string => {
+//     const recommendations = [];
     
-    if (parseInt(data.Quiz_Scores) < 80) {
-      recommendations.push("• Focus on review sessions before quizzes to improve scores");
-    }
+//     if (parseInt(data.Quiz_Scores) < 80) {
+//       recommendations.push("• Focus on review sessions before quizzes to improve scores");
+//     }
     
-    if (parseInt(data.Forum_Participation) < 10) {
-      recommendations.push("• Increase participation in forum discussions to enhance learning");
-    }
+//     if (parseInt(data.Forum_Participation) < 10) {
+//       recommendations.push("• Increase participation in forum discussions to enhance learning");
+//     }
     
-    if (parseInt(data.Assignment_Completion_Rate) < 90) {
-      recommendations.push("• Improve time management to complete more assignments on time");
-    }
+//     if (parseInt(data.Assignment_Completion_Rate) < 90) {
+//       recommendations.push("• Improve time management to complete more assignments on time");
+//     }
     
-    if (parseInt(data.Engagement_Level) < 70) {
-      recommendations.push("• Consider more active participation in class activities");
-    }
+//     if (parseInt(data.Engagement_Level) < 70) {
+//       recommendations.push("• Consider more active participation in class activities");
+//     }
     
-    if (recommendations.length === 0) {
-      recommendations.push("• Continue your excellent performance across all metrics!");
-      recommendations.push("• Consider helping peers to further enhance your learning experience");
-    }
+//     if (recommendations.length === 0) {
+//       recommendations.push("• Continue your excellent performance across all metrics!");
+//       recommendations.push("• Consider helping peers to further enhance your learning experience");
+//     }
     
-    return recommendations.join('\n');
-  };
+//     return recommendations.join('\n');
+//   };
 
   return (
     <div className="relative z-10 w-full max-w-2xl mx-auto px-4">

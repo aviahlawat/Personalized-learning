@@ -13,7 +13,7 @@ const Index = () => {
       <ThemeToggle />
       
       <div className="relative z-10 min-h-screen flex items-center justify-center py-12">
-        <AIForm />
+        <AIForm  />
       </div>
     </div>
     </ThemeProvider>

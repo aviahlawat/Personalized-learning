@@ -1,7 +1,7 @@
 // Function to make POST requests to backend
 import process from "process";
 export const makePostRequest = async (data: any) => {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
   
   try {
     const response = await fetch(`${backendUrl}/recommend`, {

@@ -1,13 +1,12 @@
 // Function to make POST requests to backend
-import process from "process";
 export const makePostRequest = async (data: any) => {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   
   try {
     const response = await fetch(`${backendUrl}/recommend`, {
-      method: 'post',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
@@ -18,7 +17,7 @@ export const makePostRequest = async (data: any) => {
 
     return await response.json();
   } catch (error) {
-    console.error('POST request failed:', error);
+    console.error("POST request failed:", error);
     throw error;
   }
 };

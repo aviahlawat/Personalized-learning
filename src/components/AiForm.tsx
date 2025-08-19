@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { makePostRequest } from './hooks';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
 interface FormData {
   Quiz_Attempts: number | '';
   Quiz_Scores: number | '';
@@ -15,10 +15,13 @@ interface FormData {
 }
 
 const ENGAGEMENT_OPTIONS = [
-  { value: 'LOW', label: 'LOW' },
+  { value: 'Low', label: 'LOW' },
   { value: 'Medium', label: 'Medium' },
-  { value: 'HIGH', label: 'HIGH' },
+  { value: 'High', label: 'HIGH' },
 ];
+
+// Import the actual API call function
+import { makePostRequest } from './hooks';
 
 const TypewriterComponent = ({ text }: { text: string }) => {
   const [displayText, setDisplayText] = useState('');
@@ -29,7 +32,7 @@ const TypewriterComponent = ({ text }: { text: string }) => {
       const timer = setTimeout(() => {
         setDisplayText(prev => prev + text[currentIndex]);
         setCurrentIndex(prev => prev + 1);
-      }, 20); // Typing speed
+      }, 20);
       return () => clearTimeout(timer);
     }
   }, [currentIndex, text]);
@@ -74,27 +77,124 @@ const AIForm = () => {
   const [loading, setLoading] = useState(false);
   const [apiResponse, setApiResponse] = useState<string>('');
   const [showChat, setShowChat] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formFields = [
-    { key: 'Quiz_Attempts', label: 'Quiz Attempts', placeholder: 'e.g., 15', type: 'number' },
-    { key: 'Quiz_Scores', label: 'Quiz Scores', placeholder: 'e.g., 85', type: 'number' },
-    { key: 'Forum_Participation', label: 'Forum Participation', placeholder: 'e.g., 12', type: 'number' },
-    { key: 'Assignment_Completion_Rate', label: 'Assignment Completion Rate', placeholder: 'e.g., 95', type: 'number' },
-    { key: 'Engagement_Level', label: 'Engagement Level', placeholder: '', type: 'select' },
-    { key: 'Final_Exam_Score', label: 'Final Exam Score', placeholder: 'e.g., 88', type: 'number' },
-    { key: 'Feedback_Score', label: 'Feedback Score', placeholder: 'e.g., 4.2', type: 'number' },
+    { 
+      key: 'Quiz_Attempts', 
+      label: 'Quiz Attempts', 
+      placeholder: 'e.g., 5', 
+      type: 'number',
+      min: 0,
+      max: 10,
+      step: 1
+    },
+    { 
+      key: 'Quiz_Scores', 
+      label: 'Quiz Scores', 
+      placeholder: 'e.g., 85', 
+      type: 'number',
+      min: 0,
+      max: 100,
+      step: 0.1
+    },
+    { 
+      key: 'Forum_Participation', 
+      label: 'Forum Participation', 
+      placeholder: 'e.g., 12', 
+      type: 'number',
+      min: 0,
+      max: 50,
+      step: 1
+    },
+    { 
+      key: 'Assignment_Completion_Rate', 
+      label: 'Assignment Completion Rate', 
+      placeholder: 'e.g., 95', 
+      type: 'number',
+      min: 0,
+      max: 100,
+      step: 0.1
+    },
+    { 
+      key: 'Engagement_Level', 
+      label: 'Engagement Level', 
+      placeholder: '', 
+      type: 'select'
+    },
+    { 
+      key: 'Final_Exam_Score', 
+      label: 'Final Exam Score', 
+      placeholder: 'e.g., 88', 
+      type: 'number',
+      min: 0,
+      max: 100,
+      step: 0.1
+    },
+    { 
+      key: 'Feedback_Score', 
+      label: 'Feedback Score', 
+      placeholder: 'e.g., 4.2', 
+      type: 'number',
+      min: 0,
+      max: 5,
+      step: 0.1
+    },
   ];
 
+  const validateInput = (key: keyof FormData, value: string) => {
+    const field = formFields.find(f => f.key === key);
+    const numValue = Number(value);
+    
+    if (field && field.type === 'number') {
+      if (value !== '' && (numValue < field.min! || numValue > field.max!)) {
+        return `Value must be between ${field.min} and ${field.max}`;
+      }
+    }
+    return '';
+  };
+
   const handleInputChange = (key: keyof FormData, value: string) => {
+    // Clear existing error for this field
+    setErrors(prev => ({ ...prev, [key]: '' }));
+
     if (key === 'Engagement_Level') {
       setFormData(prev => ({ ...prev, [key]: value }));
     } else {
       const numValue = value === '' ? '' : Number(value);
-      setFormData(prev => ({ ...prev, [key]: numValue }));
+      
+      // Validate input
+      const error = validateInput(key, value);
+      if (error) {
+        setErrors(prev => ({ ...prev, [key]: error }));
+      }
+      
+      // Update form data only if within constraints or empty
+      const field = formFields.find(f => f.key === key);
+      if (field && field.type === 'number' && value !== '') {
+        const num = Number(value);
+        if (num >= field.min! && num <= field.max!) {
+          setFormData(prev => ({ ...prev, [key]: numValue }));
+        } else if (value === '') {
+          setFormData(prev => ({ ...prev, [key]: '' }));
+        }
+      } else {
+        setFormData(prev => ({ ...prev, [key]: numValue }));
+      }
     }
   };
 
+  const isFormValid = () => {
+    const hasErrors = Object.values(errors).some(error => error !== '');
+    const hasEmptyRequired = Object.values(formData).some(value => value === '');
+    return !hasErrors && !hasEmptyRequired;
+  };
+
   const handleAnalysis = async () => {
+    if (!isFormValid()) {
+      return;
+    }
+
     setLoading(true);
     setShowChat(false);
     setApiResponse('');
@@ -113,7 +213,6 @@ const AIForm = () => {
       console.log(preparedData);
       const response = await makePostRequest(preparedData);
       
-      // Extract the response text from API
       let responseText;
       if (typeof response === 'string') {
         responseText = response;
@@ -128,7 +227,6 @@ const AIForm = () => {
       }
       
       console.log(response);
-      // Set the raw response text
       setApiResponse(responseText);
       setShowChat(true);
     } catch (error) {
@@ -152,6 +250,7 @@ const AIForm = () => {
     });
     setApiResponse('');
     setShowChat(false);
+    setErrors({});
   };
 
   return (
@@ -169,7 +268,7 @@ const AIForm = () => {
         <CardContent>
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {formFields.map(({ key, label, placeholder, type }) => (
+              {formFields.map(({ key, label, placeholder, type, min, max, step }) => (
                 <div key={key} className="space-y-2">
                   <Label htmlFor={key} className="text-sm font-medium text-foreground">
                     {label}
@@ -192,16 +291,23 @@ const AIForm = () => {
                       ))}
                     </select>
                   ) : (
-                    <Input
-                      id={key}
-                      type="number"
-                      step="0.1"
-                      placeholder={placeholder}
-                      value={formData[key as keyof FormData] === '' ? '' : String(formData[key as keyof FormData])}
-                      onChange={e => handleInputChange(key as keyof FormData, e.target.value)}
-                      className="ai-input"
-                      required
-                    />
+                    <div>
+                      <Input
+                        id={key}
+                        type="number"
+                        min={min}
+                        max={max}
+                        step={step}
+                        placeholder={placeholder}
+                        value={formData[key as keyof FormData] === '' ? '' : String(formData[key as keyof FormData])}
+                        onChange={e => handleInputChange(key as keyof FormData, e.target.value)}
+                        className="ai-input"
+                        required
+                      />
+                      {errors[key] && (
+                        <p className="text-red-500 text-xs mt-1">{errors[key]}</p>
+                      )}
+                    </div>
                   )}
                 </div>
               ))}
@@ -227,7 +333,7 @@ const AIForm = () => {
 
       {/* Chat-like Response Window */}
       {showChat && (
-        <Card className="mt-6 bg-gradient-to-br from-slate-50 to-blue-50 border-l-4 border-l-blue-500">
+        <Card className="mt-6 bg-gradient-to-br from-slate-50 to-blue-50 border-l-4 border-l-blue-500 shadow-lg">
           <CardHeader className="pb-3">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
@@ -269,7 +375,7 @@ const AIForm = () => {
                 onClick={resetForm}
                 variant="outline"
                 size="sm"
-                className="text-sm"
+                className="text-sm hover:bg-gray-50"
               >
                 New Analysis
               </Button>
@@ -280,7 +386,7 @@ const AIForm = () => {
 
       {/* Loading State for Chat */}
       {loading && !showChat && (
-        <Card className="mt-6 bg-gradient-to-br from-slate-50 to-blue-50 border-l-4 border-l-blue-500">
+        <Card className="mt-6 bg-gradient-to-br from-slate-50 to-blue-50 border-l-4 border-l-blue-500 shadow-lg">
           <CardHeader className="pb-3">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">

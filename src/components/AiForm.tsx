@@ -15,9 +15,9 @@ interface FormData {
 }
 
 const ENGAGEMENT_OPTIONS = [
-  { value: 'Low', label: 'LOW' },
+  { value: 'Low', label: 'Low' },
   { value: 'Medium', label: 'Medium' },
-  { value: 'High', label: 'HIGH' },
+  { value: 'High', label: 'High' },
 ];
 
 // Import the actual API call function
@@ -32,7 +32,7 @@ const TypewriterComponent = ({ text }: { text: string }) => {
       const timer = setTimeout(() => {
         setDisplayText(prev => prev + text[currentIndex]);
         setCurrentIndex(prev => prev + 1);
-      }, 20);
+      }, 10);
       return () => clearTimeout(timer);
     }
   }, [currentIndex, text]);
@@ -336,7 +336,7 @@ const AIForm = () => {
         <Card className="mt-6 bg-gradient-to-br from-slate-50 to-blue-50 border-l-4 border-l-blue-500 shadow-lg">
           <CardHeader className="pb-3">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex justify-left">
                 <span className="text-white text-sm font-bold">AI</span>
               </div>
               <div>
@@ -354,7 +354,7 @@ const AIForm = () => {
             <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
               <div className="max-w-none">
                 <div 
-                  className="text-slate-700 leading-relaxed whitespace-pre-wrap"
+                  className="text-slate-700 "
                   style={{ 
                     fontSize: '15px',
                     lineHeight: '1.6'
